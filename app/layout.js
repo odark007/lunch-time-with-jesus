@@ -41,6 +41,12 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:FILL@1"
+        />
+      </head>
       <body>
         {children}
         <ServiceWorkerRegister />

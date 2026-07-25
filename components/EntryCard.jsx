@@ -35,13 +35,9 @@ export default function EntryCard({ entry }) {
         <h2 className="title">{entry.title}</h2>
       </div>
       <button className="share" aria-label="Share" onClick={handleShare}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M18 8a3 3 0 1 0-2.83-4H15a3 3 0 0 0 0 6c.35 0 .68-.06 1-.17l-6.05 3.5a3 3 0 1 0 0 3.34L16 20.17A3 3 0 1 0 15 17a2.98 2.98 0 0 0-1 .17l-6.05-3.5a3 3 0 0 0 0-2.34L14 8.17c.32.11.65.17 1 .17Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-        </svg>
+        <span className="share-icon" aria-hidden="true">
+          share
+        </span>
       </button>
 
       <style jsx>{`
@@ -86,6 +82,11 @@ export default function EntryCard({ entry }) {
           align-items: center;
           justify-content: center;
           color: var(--color-green-deep);
+        }
+        .share-icon {
+          font-family: "Material Symbols Outlined";
+          font-size: 20px;
+          line-height: 1;
         }
       `}</style>
     </Link>

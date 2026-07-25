@@ -19,11 +19,11 @@ export default function MenuOverlay({ open, onClose }) {
       </button>
 
       <nav className="links">
-        <Link href="/calendar" onClick={onClose}>
-          Calendar
-        </Link>
         <Link href="/" onClick={onClose}>
           Home
+        </Link>
+        <Link href="/calendar" onClick={onClose}>
+          Calendar
         </Link>
       </nav>
 
@@ -68,12 +68,20 @@ export default function MenuOverlay({ open, onClose }) {
         }
         .socials {
           display: flex;
-          gap: 20px;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
           font-family: var(--font-body);
           font-size: 0.9rem;
           text-transform: uppercase;
           letter-spacing: 0.05em;
           opacity: 0.85;
+        }
+        @media (min-width: 768px) {
+          .socials {
+            flex-direction: row;
+            gap: 20px;
+          }
         }
       `}</style>
     </div>

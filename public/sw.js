@@ -22,8 +22,30 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
+  if (event.request.method !== "GET") {
+    return;
+  }
+
+  // Never intercept Next.js runtime/build assets.
+  if (url.pathname.startsWith("/_next/")) {
+    return;
+  }
+
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request) || caches.match("/"))
+    );
     return;
   }
 

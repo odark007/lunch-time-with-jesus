@@ -11,7 +11,9 @@ function formatDate(dateStr) {
   });
 }
 
-export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
+export default function EntryCard({ entry, onOpenPlayer, onViewNote, disabled = false }) {
+  const hasNote = !!entry.note?.trim();
+
   async function handleShare(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -33,6 +35,13 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
     e.stopPropagation();
     if (!onOpenPlayer || disabled) return;
     onOpenPlayer(entry.slug);
+  }
+
+  function handleNote(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!hasNote || !onViewNote) return;
+    onViewNote(entry);
   }
 
   function handleOpen(e) {
@@ -67,6 +76,14 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
             play_arrow
           </span>
         </button>
+
+        {hasNote && (
+          <button className="note" aria-label="View note" onClick={handleNote}>
+            <span className="note-icon" aria-hidden="true">
+              description
+            </span>
+          </button>
+        )}
       </div>
 
       <style jsx>{`
@@ -138,6 +155,20 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
           justify-content: center;
           color: var(--color-green-deep);
         }
+        .note {
+          position: absolute;
+          right: 0;
+          top: 0;
+          background: var(--color-cream);
+          border: none;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--color-green-deep);
+        }
         .share-icon {
           font-family: "Material Symbols Outlined";
           font-size: 20px;
@@ -146,6 +177,11 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
         .play-icon {
           font-family: "Material Symbols Outlined";
           font-size: 22px;
+          line-height: 1;
+        }
+        .note-icon {
+          font-family: "Material Symbols Outlined";
+          font-size: 20px;
           line-height: 1;
         }
       `}</style>

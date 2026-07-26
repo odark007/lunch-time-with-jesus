@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import MenuOverlay from "@/components/MenuOverlay";
 import EntryCard from "@/components/EntryCard";
+import NoteModal from "@/components/NoteModal";
 
 export default function HomePage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [navigatingToPlayer, setNavigatingToPlayer] = useState(false);
+  const [noteEntry, setNoteEntry] = useState(null);
 
   useEffect(() => {
     fetch("/api/entries")
@@ -47,12 +49,27 @@ export default function HomePage() {
               <EntryCard
                 entry={entry}
                 onOpenPlayer={handleOpenPlayer}
+                onViewNote={setNoteEntry}
                 disabled={navigatingToPlayer}
               />
             </div>
           ))}
         </div>
+
+        <div className="listenAgainCta">
+          <p className="listenAgainPrompt">missed a date?</p>
+          <button
+            className="listenAgainButton"
+            type="button"
+            onClick={() => router.push("/calendar")}
+            aria-label="listen again in calendar"
+          >
+            listen again
+          </button>
+        </div>
       </div>
+
+      <NoteModal open={!!noteEntry} entry={noteEntry} onClose={() => setNoteEntry(null)} />
 
       {navigatingToPlayer && (
         <div className="navSpinnerOverlay" role="status" aria-live="polite">
@@ -76,7 +93,54 @@ export default function HomePage() {
           display: flex;
           flex-direction: column;
           gap: 12px;
+          padding-bottom: 28px;
+        }
+        .listenAgainCta {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
           padding-bottom: 40px;
+        }
+        .listenAgainPrompt {
+          margin: 0;
+          color: var(--color-green-deep);
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1rem;
+          opacity: 0.9;
+        }
+        .listenAgainButton {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 182px;
+          padding: 13px 20px;
+          border: 2px solid var(--color-green-deep);
+          border-radius: 999px;
+          background: var(--color-green);
+          color: var(--color-white);
+          font-family: var(--font-body);
+          font-size: 1rem;
+          font-weight: 600;
+          letter-spacing: 0.01em;
+          text-transform: lowercase;
+          cursor: pointer;
+          box-shadow: 0 5px 0 rgba(18, 51, 29, 0.28);
+          transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+        .listenAgainButton:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 7px 14px rgba(18, 51, 29, 0.28);
+          filter: saturate(1.05);
+        }
+        .listenAgainButton:focus-visible {
+          outline: 2px solid var(--color-gold);
+          outline-offset: 2px;
+        }
+        .listenAgainButton:active {
+          transform: translateY(2px);
+          box-shadow: 0 3px 0 rgba(18, 51, 29, 0.28);
         }
         .entrySection {
           position: relative;

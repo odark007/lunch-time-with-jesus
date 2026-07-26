@@ -4,7 +4,8 @@ import Link from "next/link";
 
 const DEFAULT_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Calendar", href: "/calendar" }
+  { label: "Calendar", href: "/calendar" },
+  { label: "Subscribe", href: "/subscribe" }
 ];
 
 const SOCIALS = [

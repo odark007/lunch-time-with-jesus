@@ -1,5 +1,5 @@
 // POST /.netlify/functions/save-entry
-// Body: { adminPassword, date, youtubeUrl, title, channel, youtubeId, thumbnail }
+// Body: { adminPassword, date, youtubeUrl, title, channel, youtubeId, thumbnail, note }
 // Adds a new entry or updates an existing one (matched by date), then commits
 // the updated data/entries.json back to GitHub so the site picks it up.
 
@@ -33,7 +33,7 @@ exports.handler = async function (event) {
     return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
   }
 
-  const { date, youtubeUrl, title, channel, youtubeId, thumbnail } = body;
+  const { date, youtubeUrl, title, channel, youtubeId, thumbnail, note } = body;
   if (!date || !youtubeUrl) {
     return { statusCode: 400, body: JSON.stringify({ error: "date and youtubeUrl are required" }) };
   }
@@ -50,7 +50,8 @@ exports.handler = async function (event) {
       youtubeId: youtubeId || "",
       title: title || "Untitled",
       channel: channel || "Lunch Time With Jesus",
-      thumbnail: thumbnail || ""
+      thumbnail: thumbnail || "",
+      note: note || ""
     };
 
     const existingIndex = entries.findIndex((e) => e.date === date);

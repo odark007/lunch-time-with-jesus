@@ -6,6 +6,7 @@ import VinylPlayer from "@/components/VinylPlayer";
 import PlayerRing from "@/components/PlayerRing";
 import PlayerControls from "@/components/PlayerControls";
 import YouTubeAudio from "@/components/YouTubeAudio";
+import NoteModal from "@/components/NoteModal";
 
 function formatTime(seconds) {
   if (!seconds || Number.isNaN(seconds)) return "0:00";
@@ -21,12 +22,14 @@ export default function PlayerPage({ params }) {
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [continuousPlay, setContinuousPlay] = useState(true);
+  const [noteOpen, setNoteOpen] = useState(false);
   const playerRef = useRef(null);
 
   useEffect(() => {
     fetch(`/api/entries/${params.date}`)
       .then((res) => res.json())
       .then(setData);
+    setNoteOpen(false);
   }, [params.date]);
 
   function handlePlayPause() {
@@ -128,6 +131,14 @@ export default function PlayerPage({ params }) {
         onToggleContinuous={() => setContinuousPlay((v) => !v)}
       />
 
+      {entry.note?.trim() && (
+        <button className="note-cta" type="button" onClick={() => setNoteOpen(true)}>
+          View note
+        </button>
+      )}
+
+      <NoteModal open={noteOpen} entry={entry} onClose={() => setNoteOpen(false)} />
+
       <style jsx>{`
         .player-page {
           background: radial-gradient(circle at 50% 20%, #17171a, var(--color-black) 70%);
@@ -173,6 +184,16 @@ export default function PlayerPage({ params }) {
         }
         .title {
           font-size: 1.5rem;
+        }
+        .note-cta {
+          margin-top: 20px;
+          background: rgba(244, 236, 216, 0.08);
+          color: var(--color-cream);
+          border: 1px solid rgba(244, 236, 216, 0.22);
+          padding: 11px 18px;
+          border-radius: 999px;
+          font-weight: 600;
+          letter-spacing: 0.01em;
         }
         .disc-wrap :global(.vinyl-canvas) {
           width: 100%;

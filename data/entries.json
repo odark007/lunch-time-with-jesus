@@ -6,7 +6,8 @@
     "youtubeId": "cWR4OUxbBVI",
     "title": "test-message-3",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/cWR4OUxbBVI/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/cWR4OUxbBVI/hqdefault.jpg",
+    "note": ""
   },
   {
     "date": "2026-07-20",
@@ -15,7 +16,8 @@
     "youtubeId": "dQw4w9WgXcQ",
     "title": "test-message-4",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    "note": ""
   },
   {
     "date": "2026-07-21",
@@ -24,7 +26,8 @@
     "youtubeId": "cWR4OUxbBVI",
     "title": "test-message",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/cWR4OUxbBVI/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/cWR4OUxbBVI/hqdefault.jpg",
+    "note": ""
   },
   {
     "date": "2026-07-22",
@@ -33,7 +36,8 @@
     "youtubeId": "dQw4w9WgXcQ",
     "title": "test-message-2",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    "note": ""
   },
   {
     "date": "2026-07-23",
@@ -42,7 +46,8 @@
     "youtubeId": "dQw4w9WgXcQ",
     "title": "Walking in Faith Today",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    "note": ""
   },
   {
     "date": "2026-07-24",
@@ -51,7 +56,8 @@
     "youtubeId": "cWR4OUxbBVI",
     "title": "The Manifestation of God’s Promises - Mensah Otabil",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/cWR4OUxbBVI/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/cWR4OUxbBVI/hqdefault.jpg",
+    "note": "another note"
   },
   {
     "date": "2026-07-25",
@@ -60,6 +66,7 @@
     "youtubeId": "dQw4w9WgXcQ",
     "title": "Rest in His Presence",
     "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    "note": "this is a note"
   }
 ]

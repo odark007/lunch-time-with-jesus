@@ -12,6 +12,7 @@ function extractYoutubeId(url) {
 export default function AdminForm({ password, onSaved, editingEntry, onCancelEdit }) {
   const [url, setUrl] = useState("");
   const [date, setDate] = useState("");
+  const [note, setNote] = useState("");
   const [preview, setPreview] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -22,6 +23,7 @@ export default function AdminForm({ password, onSaved, editingEntry, onCancelEdi
     if (!editingEntry) return;
     setUrl(editingEntry.youtubeUrl || "");
     setDate(editingEntry.date || "");
+    setNote(editingEntry.note || "");
     setPreview({
       youtubeId: editingEntry.youtubeId,
       title: editingEntry.title,
@@ -34,6 +36,7 @@ export default function AdminForm({ password, onSaved, editingEntry, onCancelEdi
   function resetForm() {
     setUrl("");
     setDate("");
+    setNote("");
     setPreview(null);
   }
 
@@ -78,7 +81,8 @@ export default function AdminForm({ password, onSaved, editingEntry, onCancelEdi
           youtubeId: preview.youtubeId,
           title: preview.title,
           channel: preview.channel,
-          thumbnail: preview.thumbnail
+            thumbnail: preview.thumbnail,
+            note
         })
       });
       const data = await res.json();
@@ -115,6 +119,16 @@ export default function AdminForm({ password, onSaved, editingEntry, onCancelEdi
           onChange={(e) => setDate(e.target.value)}
           disabled={isEditMode}
           required
+        />
+      </label>
+
+      <label>
+        Note
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Add the note text for this entry"
+          rows={6}
         />
       </label>
 
@@ -171,6 +185,15 @@ export default function AdminForm({ password, onSaved, editingEntry, onCancelEdi
           border: 1px solid var(--color-cream-dim);
           border-radius: var(--radius-sm);
           font-size: 1rem;
+        }
+        textarea {
+          padding: 10px 12px;
+          border: 1px solid var(--color-cream-dim);
+          border-radius: var(--radius-sm);
+          font-size: 1rem;
+          font-family: inherit;
+          resize: vertical;
+          min-height: 120px;
         }
         .preview {
           display: flex;

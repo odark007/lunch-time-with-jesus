@@ -28,6 +28,13 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
     }
   }
 
+  function handlePlay(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!onOpenPlayer || disabled) return;
+    onOpenPlayer(entry.slug);
+  }
+
   function handleOpen(e) {
     if (!onOpenPlayer || disabled) {
       if (disabled) e.preventDefault();
@@ -48,18 +55,26 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
         <span className="date">{formatDate(entry.date)}</span>
         <h2 className="title">{entry.title}</h2>
       </div>
-      <button className="share" aria-label="Share" onClick={handleShare}>
-        <span className="share-icon" aria-hidden="true">
-          share
-        </span>
-      </button>
+      <div className="actions">
+        <button className="share" aria-label="Share" onClick={handleShare}>
+          <span className="share-icon" aria-hidden="true">
+            share
+          </span>
+        </button>
+
+        <button className="play" aria-label="Play message" onClick={handlePlay}>
+          <span className="play-icon" aria-hidden="true">
+            play_arrow
+          </span>
+        </button>
+      </div>
 
       <style jsx>{`
         .card {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 14px;
           padding: 20px;
           background: var(--color-white);
           border-radius: var(--radius-md);
@@ -90,8 +105,29 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
           word-break: normal;
           overflow-wrap: normal;
         }
+        .actions {
+          position: relative;
+          min-height: 40px;
+        }
         .share {
-          flex-shrink: 0;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: var(--color-cream);
+          border: none;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--color-green-deep);
+        }
+        .play {
+          position: absolute;
+          left: 50%;
+          top: 0;
+          transform: translateX(-50%);
           background: var(--color-cream);
           border: none;
           border-radius: 50%;
@@ -105,6 +141,11 @@ export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
         .share-icon {
           font-family: "Material Symbols Outlined";
           font-size: 20px;
+          line-height: 1;
+        }
+        .play-icon {
+          font-family: "Material Symbols Outlined";
+          font-size: 22px;
           line-height: 1;
         }
       `}</style>

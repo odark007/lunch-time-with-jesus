@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 
+const DEFAULT_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Calendar", href: "/calendar" }
+];
+
 const SOCIALS = [
   { label: "Facebook", href: "https://facebook.com" },
   { label: "Instagram", href: "https://instagram.com" },
@@ -9,7 +14,12 @@ const SOCIALS = [
   { label: "TikTok", href: "https://tiktok.com" }
 ];
 
-export default function MenuOverlay({ open, onClose }) {
+export default function MenuOverlay({
+  open,
+  onClose,
+  links = DEFAULT_LINKS,
+  showSocials = true
+}) {
   if (!open) return null;
 
   return (
@@ -19,21 +29,30 @@ export default function MenuOverlay({ open, onClose }) {
       </button>
 
       <nav className="links">
-        <Link href="/" onClick={onClose}>
-          Home
-        </Link>
-        <Link href="/calendar" onClick={onClose}>
-          Calendar
-        </Link>
+        {links.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={(e) => {
+              item.onClick?.(e);
+              if (e.defaultPrevented) return;
+              onClose?.();
+            }}
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
 
-      <div className="socials">
-        {SOCIALS.map((s) => (
-          <a key={s.label} href={s.href} target="_blank" rel="noreferrer">
-            {s.label}
-          </a>
-        ))}
-      </div>
+      {showSocials && (
+        <div className="socials">
+          {SOCIALS.map((s) => (
+            <a key={s.label} href={s.href} target="_blank" rel="noreferrer">
+              {s.label}
+            </a>
+          ))}
+        </div>
+      )}
 
       <style jsx>{`
         .overlay {

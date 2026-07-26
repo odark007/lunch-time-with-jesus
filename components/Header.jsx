@@ -1,9 +1,9 @@
 "use client";
 
-export default function Header({ onMenuClick }) {
+export default function Header({ onMenuClick, title = "Lunch Time With Jesus" }) {
   return (
     <header className="header">
-      <span className="header-title">Lunch Time With Jesus</span>
+      <span className="header-title">{title}</span>
       <button
         className="hamburger"
         aria-label="Open menu"
@@ -16,20 +16,25 @@ export default function Header({ onMenuClick }) {
 
       <style jsx>{`
         .header {
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
           align-items: center;
-          justify-content: space-between;
           padding: 20px;
           max-width: var(--max-width);
           margin: 0 auto;
         }
         .header-title {
+          grid-column: 2;
+          justify-self: center;
+          text-align: center;
           font-family: var(--font-display);
           font-weight: 600;
           font-size: 1.1rem;
           color: var(--color-green-deep);
         }
         .hamburger {
+          grid-column: 3;
+          justify-self: end;
           background: none;
           border: none;
           padding: 8px;

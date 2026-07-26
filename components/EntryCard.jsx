@@ -11,7 +11,7 @@ function formatDate(dateStr) {
   });
 }
 
-export default function EntryCard({ entry }) {
+export default function EntryCard({ entry, onOpenPlayer, disabled = false }) {
   async function handleShare(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -28,8 +28,22 @@ export default function EntryCard({ entry }) {
     }
   }
 
+  function handleOpen(e) {
+    if (!onOpenPlayer || disabled) {
+      if (disabled) e.preventDefault();
+      return;
+    }
+    e.preventDefault();
+    onOpenPlayer(entry.slug);
+  }
+
   return (
-    <Link href={`/player/${entry.slug}`} className="card">
+    <Link
+      href={`/player/${entry.slug}`}
+      className={`card${disabled ? " card-disabled" : ""}`}
+      aria-disabled={disabled}
+      onClick={handleOpen}
+    >
       <div className="text">
         <span className="date">{formatDate(entry.date)}</span>
         <h2 className="title">{entry.title}</h2>
@@ -51,6 +65,10 @@ export default function EntryCard({ entry }) {
           border-radius: var(--radius-md);
           border: 1px solid var(--color-cream-dim);
         }
+        .card-disabled {
+          pointer-events: none;
+          opacity: 0.92;
+        }
         .text {
           display: flex;
           flex-direction: column;
@@ -67,9 +85,10 @@ export default function EntryCard({ entry }) {
         .title {
           font-size: 1.15rem;
           font-weight: 600;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          margin: 0;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: normal;
         }
         .share {
           flex-shrink: 0;

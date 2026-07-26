@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function extractYoutubeId(url) {
   const match = url.match(
@@ -9,12 +9,33 @@ function extractYoutubeId(url) {
   return match ? match[1] : null;
 }
 
-export default function AdminForm({ password, onSaved }) {
+export default function AdminForm({ password, onSaved, editingEntry, onCancelEdit }) {
   const [url, setUrl] = useState("");
   const [date, setDate] = useState("");
   const [preview, setPreview] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const isEditMode = !!editingEntry;
+
+  useEffect(() => {
+    if (!editingEntry) return;
+    setUrl(editingEntry.youtubeUrl || "");
+    setDate(editingEntry.date || "");
+    setPreview({
+      youtubeId: editingEntry.youtubeId,
+      title: editingEntry.title,
+      channel: editingEntry.channel,
+      thumbnail: editingEntry.thumbnail
+    });
+    setError("");
+  }, [editingEntry]);
+
+  function resetForm() {
+    setUrl("");
+    setDate("");
+    setPreview(null);
+  }
 
   async function handleUrlBlur() {
     const id = extractYoutubeId(url);
@@ -62,10 +83,9 @@ export default function AdminForm({ password, onSaved }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
-      setUrl("");
-      setDate("");
-      setPreview(null);
+      resetForm();
       onSaved?.();
+      onCancelEdit?.();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -93,6 +113,7 @@ export default function AdminForm({ password, onSaved }) {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          disabled={isEditMode}
           required
         />
       </label>
@@ -109,9 +130,24 @@ export default function AdminForm({ password, onSaved }) {
 
       {error && <p className="error">{error}</p>}
 
-      <button type="submit" disabled={saving}>
-        {saving ? "Saving..." : "Save entry"}
-      </button>
+      <div className="actions">
+        {isEditMode && (
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => {
+              onCancelEdit?.();
+              resetForm();
+              setError("");
+            }}
+          >
+            Cancel
+          </button>
+        )}
+        <button type="submit" disabled={saving}>
+          {saving ? "Saving..." : isEditMode ? "Update entry" : "Save entry"}
+        </button>
+      </div>
 
       <style jsx>{`
         .form {
@@ -165,6 +201,16 @@ export default function AdminForm({ password, onSaved }) {
         }
         button:disabled {
           opacity: 0.6;
+        }
+        .actions {
+          display: flex;
+          gap: 8px;
+          justify-content: center;
+        }
+        .secondary {
+          background: var(--color-cream);
+          color: var(--color-green-deep);
+          border: 1px solid var(--color-cream-dim);
         }
       `}</style>
     </form>

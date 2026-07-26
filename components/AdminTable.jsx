@@ -1,6 +1,12 @@
 "use client";
 
-export default function AdminTable({ entries, password, onChanged }) {
+export default function AdminTable({
+  entries,
+  password,
+  onChanged,
+  onEdit,
+  emptyText = "No entries found."
+}) {
   async function handleDelete(date) {
     if (!confirm(`Delete entry for ${date}?`)) return;
     const res = await fetch("/.netlify/functions/delete-entry", {
@@ -13,25 +19,52 @@ export default function AdminTable({ entries, password, onChanged }) {
   }
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Title</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {entries.map((entry) => (
-          <tr key={entry.date}>
-            <td>{entry.date}</td>
-            <td>{entry.title}</td>
-            <td>
-              <button onClick={() => handleDelete(entry.date)}>Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
+    <>
+      {entries.length ? (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Title</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((entry) => (
+              <tr key={entry.date}>
+                <td>{entry.date}</td>
+                <td>{entry.title}</td>
+                <td>
+                  <div className="actions">
+                    <button
+                      type="button"
+                      className="icon edit"
+                      aria-label={`Edit entry for ${entry.date}`}
+                      onClick={() => onEdit?.(entry)}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        edit
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="icon delete"
+                      aria-label={`Delete entry for ${entry.date}`}
+                      onClick={() => handleDelete(entry.date)}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        delete
+                      </span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="empty">{emptyText}</p>
+      )}
 
       <style jsx>{`
         .table {
@@ -47,15 +80,46 @@ export default function AdminTable({ entries, password, onChanged }) {
           padding: 12px;
           font-size: 0.85rem;
           border-bottom: 1px solid var(--color-cream-dim);
+          vertical-align: middle;
         }
-        button {
-          background: none;
-          border: none;
+        td:last-child,
+        th:last-child {
+          width: 90px;
+          text-align: right;
+        }
+        .actions {
+          display: inline-flex;
+          gap: 6px;
+        }
+        .icon {
+          background: var(--color-cream);
+          border: 1px solid var(--color-cream-dim);
+          color: var(--color-green-deep);
+          border-radius: 999px;
+          width: 32px;
+          height: 32px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+        }
+        .icon.delete {
           color: var(--color-red);
-          font-weight: 600;
-          font-size: 0.8rem;
+        }
+        .material-symbols-outlined {
+          font-size: 18px;
+          line-height: 1;
+        }
+        .empty {
+          background: var(--color-white);
+          border-radius: var(--radius-md);
+          padding: 16px;
+          margin: 0;
+          color: var(--color-ink);
+          opacity: 0.75;
+          font-size: 0.9rem;
         }
       `}</style>
-    </table>
+    </>
   );
 }

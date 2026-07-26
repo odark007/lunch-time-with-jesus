@@ -58,23 +58,7 @@ export default function PlayerPage({ params }) {
     if (data?.next) router.push(`/player/${data.next.slug}`);
   }
 
-  if (!data) {
-    return (
-      <main className="player-page loading">
-        <p>Loading...</p>
-        <style jsx>{`
-          .loading {
-            background: var(--color-black);
-            color: var(--color-cream);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-        `}</style>
-      </main>
-    );
-  }
+  if (!data) return null;
 
   if (data.error) {
     return (

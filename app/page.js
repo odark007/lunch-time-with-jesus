@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import MenuOverlay from "@/components/MenuOverlay";
 import EntryCard from "@/components/EntryCard";
 
 export default function HomePage() {
+  const router = useRouter();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navigatingToPlayer, setNavigatingToPlayer] = useState(false);
 
   useEffect(() => {
     fetch("/api/entries")
@@ -18,6 +21,12 @@ export default function HomePage() {
         setLoading(false);
       });
   }, []);
+
+  function handleOpenPlayer(slug) {
+    if (navigatingToPlayer) return;
+    setNavigatingToPlayer(true);
+    router.push(`/player/${slug}`);
+  }
 
   return (
     <main>
@@ -34,10 +43,22 @@ export default function HomePage() {
 
         <div className="list">
           {entries.map((entry) => (
-            <EntryCard key={entry.date} entry={entry} />
+            <div className="entrySection" key={entry.date}>
+              <EntryCard
+                entry={entry}
+                onOpenPlayer={handleOpenPlayer}
+                disabled={navigatingToPlayer}
+              />
+            </div>
           ))}
         </div>
       </div>
+
+      {navigatingToPlayer && (
+        <div className="navSpinnerOverlay" role="status" aria-live="polite">
+          <span className="navSpinner" aria-hidden="true" />
+        </div>
+      )}
 
       <style jsx>{`
         .intro {
@@ -56,6 +77,41 @@ export default function HomePage() {
           flex-direction: column;
           gap: 12px;
           padding-bottom: 40px;
+        }
+        .entrySection {
+          position: relative;
+          padding-bottom: 12px;
+        }
+        .entrySection:not(:last-child)::after {
+          content: "";
+          display: block;
+          width: 68%;
+          height: 1px;
+          margin: 12px auto 0;
+          background: var(--color-green-deep);
+          opacity: 0.2;
+        }
+        .navSpinnerOverlay {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+          z-index: 40;
+        }
+        .navSpinner {
+          width: 20px;
+          height: 20px;
+          border: 2px solid rgba(18, 51, 29, 0.2);
+          border-top-color: var(--color-green-deep);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </main>

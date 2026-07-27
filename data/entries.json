@@ -1,14 +1,4 @@
 [
-    {
-    "date": "2026-07-19",
-    "slug": "2026-07-19",
-    "youtubeUrl": "https://www.youtube.com/watch?v=pSX-lqwIxEY",
-    "youtubeId": "pSX-lqwIxEY",
-    "title": "test-message-3",
-    "channel": "Lunch Time With Jesus",
-    "thumbnail": "https://i.ytimg.com/vi/pSX-lqwIxEY/hqdefault.jpg",
-    "note": ""
-  },
   {
     "date": "2026-07-19",
     "slug": "2026-07-19",
@@ -78,5 +68,15 @@
     "channel": "Lunch Time With Jesus",
     "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
     "note": "this is a note"
+  },
+      {
+    "date": "2026-07-27",
+    "slug": "2026-07-27",
+    "youtubeUrl": "https://www.youtube.com/watch?v=pSX-lqwIxEY",
+    "youtubeId": "pSX-lqwIxEY",
+    "title": "Patience",
+    "channel": "Lunch Time With Jesus",
+    "thumbnail": "https://i.ytimg.com/vi/pSX-lqwIxEY/hqdefault.jpg",
+    "note": ""
   }
 ]

@@ -21,10 +21,27 @@ export default function AdminPage() {
 
   const pageSize = 10;
 
+  function sortByDateDesc(list) {
+    return [...list].sort((a, b) => (a.date < b.date ? 1 : -1));
+  }
+
+  function upsertEntryLocally(nextEntry) {
+    if (!nextEntry?.date) return;
+    setEntries((prev) => {
+      const existingIndex = prev.findIndex((entry) => entry.date === nextEntry.date);
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        updated[existingIndex] = nextEntry;
+        return sortByDateDesc(updated);
+      }
+      return sortByDateDesc([...prev, nextEntry]);
+    });
+  }
+
   function loadEntries() {
-    fetch("/api/entries")
+    fetch(`/api/entries?ts=${Date.now()}`, { cache: "no-store" })
       .then((res) => res.json())
-      .then((data) => setEntries(data.entries || []));
+      .then((data) => setEntries(sortByDateDesc(data.entries || [])));
   }
 
   useEffect(() => {
@@ -66,8 +83,19 @@ export default function AdminPage() {
     window.history.replaceState({}, "", `/admin${next}`);
   }
 
-  function handleSaved() {
+  function handleSaved(savedEntry) {
+    upsertEntryLocally(savedEntry);
     setEditingEntry(null);
+
+    // Reconcile with API in background in case of race conditions.
+    loadEntries();
+  }
+
+  function handleDeleted(deletedDate) {
+    setEntries((prev) => prev.filter((entry) => entry.date !== deletedDate));
+    setEditingEntry((prev) => (prev?.date === deletedDate ? null : prev));
+
+    // Reconcile with API in background in case of race conditions.
     loadEntries();
   }
 
@@ -183,13 +211,22 @@ export default function AdminPage() {
               <AdminTable
                 entries={latestTwoEntries}
                 password={password}
-                onChanged={loadEntries}
+                onDeleted={handleDeleted}
                 onEdit={setEditingEntry}
               />
             </section>
           </>
         ) : (
           <>
+            {editingEntry && (
+              <AdminForm
+                password={password}
+                onSaved={handleSaved}
+                editingEntry={editingEntry}
+                onCancelEdit={() => setEditingEntry(null)}
+              />
+            )}
+
             <section className="card filters">
               <label>
                 Search title
@@ -215,7 +252,7 @@ export default function AdminPage() {
               <AdminTable
                 entries={curatorPageEntries}
                 password={password}
-                onChanged={loadEntries}
+                onDeleted={handleDeleted}
                 onEdit={setEditingEntry}
                 emptyText="No entries match your filters."
               />

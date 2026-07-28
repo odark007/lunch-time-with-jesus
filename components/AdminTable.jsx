@@ -4,18 +4,40 @@ export default function AdminTable({
   entries,
   password,
   onChanged,
+  onDeleted,
   onEdit,
   emptyText = "No entries found."
 }) {
   async function handleDelete(date) {
     if (!confirm(`Delete entry for ${date}?`)) return;
-    const res = await fetch("/.netlify/functions/delete-entry", {
+    let res = await fetch("/.netlify/functions/delete-entry", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ adminPassword: password, date })
     });
-    if (res.ok) onChanged?.();
-    else alert("Delete failed");
+
+    // In plain `next dev`, Netlify functions are not mounted. Fall back to a local API route.
+    if (res.status === 404) {
+      res = await fetch("/api/admin/delete-entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminPassword: password, date })
+      });
+    }
+
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await res.json()
+      : { error: await res.text() };
+
+    if (!res.ok) {
+      alert(data.error || "Delete failed");
+      return;
+    }
+
+    const deletedDate = data.deletedDate || date;
+    onDeleted?.(deletedDate);
+    onChanged?.();
   }
 
   return (

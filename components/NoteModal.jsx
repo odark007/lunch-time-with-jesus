@@ -18,8 +18,70 @@ function escapePdfText(text) {
     .replace(/\)/g, "\\)");
 }
 
+function normalizeNoteParagraphs(rawText) {
+  const normalized = String(rawText || "")
+    .replace(/\r\n?/g, "\n")
+    .trim();
+
+  if (!normalized) return "";
+
+  if (/\n\s*\n/.test(normalized)) {
+    const lines = normalized.split("\n");
+    const paragraphs = [];
+    let currentParagraph = [];
+
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) {
+        if (currentParagraph.length) {
+          paragraphs.push(currentParagraph.join(" "));
+          currentParagraph = [];
+        }
+        return;
+      }
+
+      currentParagraph.push(trimmedLine);
+    });
+
+    if (currentParagraph.length) {
+      paragraphs.push(currentParagraph.join(" "));
+    }
+
+    return paragraphs.join("\n\n");
+  }
+
+  const collapsed = normalized.replace(/\s+/g, " ").trim();
+  const sentences =
+    collapsed.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)?.map((part) => part.trim()) || [];
+
+  if (sentences.length < 3) return collapsed;
+
+  const paragraphs = [];
+  let current = [];
+  let currentLength = 0;
+
+  sentences.forEach((sentence) => {
+    const nextLength = currentLength + (currentLength ? 1 : 0) + sentence.length;
+    current.push(sentence);
+    currentLength = nextLength;
+
+    if (current.length >= 3 || currentLength >= 420) {
+      paragraphs.push(current.join(" "));
+      current = [];
+      currentLength = 0;
+    }
+  });
+
+  if (current.length) {
+    paragraphs.push(current.join(" "));
+  }
+
+  return paragraphs.join("\n\n");
+}
+
 function wrapText(text, maxChars) {
-  const paragraphs = toPdfSafeText(text).split(/\r?\n/);
+  const formattedText = normalizeNoteParagraphs(text);
+  const paragraphs = toPdfSafeText(formattedText).split(/\r?\n/);
   const lines = [];
 
   paragraphs.forEach((paragraph, index) => {

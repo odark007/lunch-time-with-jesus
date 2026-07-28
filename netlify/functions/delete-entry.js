@@ -32,7 +32,8 @@ exports.handler = async function (event) {
   }
 
   const { date } = body;
-  if (!date) {
+  const normalizedDate = (date || "").trim();
+  if (!normalizedDate) {
     return { statusCode: 400, body: JSON.stringify({ error: "date is required" }) };
   }
 
@@ -41,21 +42,21 @@ exports.handler = async function (event) {
     const file = await githubRequest(contentsUrl);
     const entries = JSON.parse(Buffer.from(file.content, "base64").toString("utf-8"));
 
-    const filtered = entries.filter((e) => e.date !== date);
+    const filtered = entries.filter((e) => e.date !== normalizedDate);
 
     const putUrl = `${API_BASE}/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/contents/${FILE_PATH}`;
     const content = Buffer.from(JSON.stringify(filtered, null, 2)).toString("base64");
     await githubRequest(putUrl, {
       method: "PUT",
       body: JSON.stringify({
-        message: `Delete entry for ${date}`,
+        message: `Delete entry for ${normalizedDate}`,
         content,
         sha: file.sha,
         branch: process.env.GITHUB_BRANCH
       })
     });
 
-    return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    return { statusCode: 200, body: JSON.stringify({ success: true, deletedDate: normalizedDate }) };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }

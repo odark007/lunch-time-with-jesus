@@ -5,6 +5,75 @@
 
 const API_BASE = "https://api.github.com";
 const FILE_PATH = "data/entries.json";
+const FIXED_CHANNEL = "Lunch Time With Jesus";
+
+function extractYoutubeId(url) {
+  const match = (url || "").match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : "";
+}
+
+function normalizeNoteText(rawText) {
+  const normalized = String(rawText || "")
+    .replace(/\r\n?/g, "\n")
+    .trim();
+
+  if (!normalized) return "";
+
+  if (/\n\s*\n/.test(normalized)) {
+    const lines = normalized.split("\n");
+    const paragraphs = [];
+    let currentParagraph = [];
+
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) {
+        if (currentParagraph.length) {
+          paragraphs.push(currentParagraph.join(" "));
+          currentParagraph = [];
+        }
+        return;
+      }
+
+      currentParagraph.push(trimmedLine);
+    });
+
+    if (currentParagraph.length) {
+      paragraphs.push(currentParagraph.join(" "));
+    }
+
+    return paragraphs.join("\n\n");
+  }
+
+  const collapsed = normalized.replace(/\s+/g, " ").trim();
+  const sentences =
+    collapsed.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)?.map((part) => part.trim()) || [];
+
+  if (sentences.length < 3) return collapsed;
+
+  const paragraphs = [];
+  let current = [];
+  let currentLength = 0;
+
+  sentences.forEach((sentence) => {
+    const nextLength = currentLength + (currentLength ? 1 : 0) + sentence.length;
+    current.push(sentence);
+    currentLength = nextLength;
+
+    if (current.length >= 3 || currentLength >= 420) {
+      paragraphs.push(current.join(" "));
+      current = [];
+      currentLength = 0;
+    }
+  });
+
+  if (current.length) {
+    paragraphs.push(current.join(" "));
+  }
+
+  return paragraphs.join("\n\n");
+}
 
 async function githubRequest(url, options = {}) {
   const res = await fetch(url, {
@@ -33,8 +102,11 @@ exports.handler = async function (event) {
     return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
   }
 
-  const { date, youtubeUrl, title, channel, youtubeId, thumbnail, note } = body;
-  if (!date || !youtubeUrl) {
+  const { date, youtubeUrl, title, youtubeId, thumbnail, note } = body;
+  const normalizedDate = (date || "").trim();
+  const normalizedYoutubeUrl = (youtubeUrl || "").trim();
+
+  if (!normalizedDate || !normalizedYoutubeUrl) {
     return { statusCode: 400, body: JSON.stringify({ error: "date and youtubeUrl are required" }) };
   }
 
@@ -43,18 +115,35 @@ exports.handler = async function (event) {
     const file = await githubRequest(contentsUrl);
     const entries = JSON.parse(Buffer.from(file.content, "base64").toString("utf-8"));
 
+    const existingIndex = entries.findIndex((e) => e.date === normalizedDate);
+    const existingEntry = existingIndex >= 0 ? entries[existingIndex] : null;
+    const sameYoutubeUrl =
+      existingEntry && existingEntry.youtubeUrl === normalizedYoutubeUrl;
+
+    const resolvedYoutubeId =
+      (youtubeId || "").trim() ||
+      extractYoutubeId(normalizedYoutubeUrl) ||
+      (sameYoutubeUrl ? existingEntry.youtubeId || "" : "");
+    const resolvedTitle =
+      (title || "").trim() || (sameYoutubeUrl ? existingEntry.title || "" : "") || "Untitled";
+    const resolvedChannel = FIXED_CHANNEL;
+    const resolvedThumbnail =
+      (thumbnail || "").trim() ||
+      (sameYoutubeUrl ? existingEntry.thumbnail || "" : "") ||
+      (resolvedYoutubeId ? `https://i.ytimg.com/vi/${resolvedYoutubeId}/hqdefault.jpg` : "");
+    const resolvedNote = normalizeNoteText(note);
+
     const newEntry = {
-      date,
-      slug: date,
-      youtubeUrl,
-      youtubeId: youtubeId || "",
-      title: title || "Untitled",
-      channel: channel || "Lunch Time With Jesus",
-      thumbnail: thumbnail || "",
-      note: note || ""
+      date: normalizedDate,
+      slug: normalizedDate,
+      youtubeUrl: normalizedYoutubeUrl,
+      youtubeId: resolvedYoutubeId,
+      title: resolvedTitle,
+      channel: resolvedChannel,
+      thumbnail: resolvedThumbnail,
+      note: resolvedNote
     };
 
-    const existingIndex = entries.findIndex((e) => e.date === date);
     if (existingIndex >= 0) {
       entries[existingIndex] = newEntry;
     } else {
@@ -66,7 +155,7 @@ exports.handler = async function (event) {
     await githubRequest(putUrl, {
       method: "PUT",
       body: JSON.stringify({
-        message: `Add/update entry for ${date}`,
+        message: `Add/update entry for ${normalizedDate}`,
         content,
         sha: file.sha,
         branch: process.env.GITHUB_BRANCH

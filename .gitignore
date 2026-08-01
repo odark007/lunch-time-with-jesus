@@ -36,3 +36,12 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+.kilo/
+
+
+# ==========================
+# Continue MCP Configuration
+# ==========================
+.continue/mcpServers/
+.continue/mcpServers/*.yaml

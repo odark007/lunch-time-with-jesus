@@ -32,7 +32,9 @@ netlify dev
 Copy `.env.example` to `.env` for local Netlify CLI use, or set these in
 Netlify's dashboard (Site settings > Environment variables) for production:
 
-- `GITHUB_TOKEN` — a GitHub personal access token with repo write access
+- `GITHUB_TOKEN` — a GitHub token that can update repository contents
+  - Fine-grained PAT: grant access to this repository and set `Contents: Read and write`
+  - Classic PAT: enable `repo` scope
 - `GITHUB_OWNER` — your GitHub username or org
 - `GITHUB_REPO` — this repo's name
 - `GITHUB_BRANCH` — usually `main`

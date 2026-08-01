@@ -7,6 +7,29 @@ const API_BASE = "https://api.github.com";
 const FILE_PATH = "data/entries.json";
 const FIXED_CHANNEL = "Lunch Time With Jesus";
 
+function requiredEnvMissing() {
+  const required = ["GITHUB_TOKEN", "GITHUB_OWNER", "GITHUB_REPO", "GITHUB_BRANCH", "ADMIN_PASSWORD"];
+  return required.filter((key) => !process.env[key]);
+}
+
+function formatGithubError(err) {
+  const message = String(err?.message || "");
+
+  if (message.includes("GitHub API error 401")) {
+    return "GitHub token is invalid or expired. Update GITHUB_TOKEN in Netlify environment variables.";
+  }
+
+  if (message.includes("GitHub API error 403")) {
+    return "GitHub token does not have permission to update this repository. Use a token with repository Contents write access for the configured owner/repo.";
+  }
+
+  if (message.includes("GitHub API error 404")) {
+    return "GitHub repository or file not found for current configuration. Verify GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH, and data/entries.json path.";
+  }
+
+  return message || "Save failed";
+}
+
 function extractYoutubeId(url) {
   const match = (url || "").match(
     /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
@@ -96,6 +119,16 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method not allowed" };
   }
 
+  const missingEnv = requiredEnvMissing();
+  if (missingEnv.length) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: `Server is missing required environment variables: ${missingEnv.join(", ")}`
+      })
+    };
+  }
+
   const body = JSON.parse(event.body || "{}");
 
   if (body.adminPassword !== process.env.ADMIN_PASSWORD) {
@@ -164,6 +197,6 @@ exports.handler = async function (event) {
 
     return { statusCode: 200, body: JSON.stringify({ success: true, entry: newEntry }) };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ error: formatGithubError(err) }) };
   }
 };
